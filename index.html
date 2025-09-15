@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Future Planner — Life Vision Board</title>
+  <meta name="theme-color" content="#ff4da6" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23ff4da6'/><text x='50' y='60' font-size='60' text-anchor='middle' fill='white'>❤</text></svg>">
+  <style>
+    :root{
+      --pink:#ff4da6; --pink-2:#ff77c4; --bg:#fff5fa; --ink:#1f2937; --muted:#6b7280; --card:#ffffff; --edge:#ffd1e6;
+      --blue:#38bdf8; --violet:#a78bfa; --green:#34d399; --amber:#fbbf24; --rose:#fb7185;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; color:var(--ink);
+      background:
+        radial-gradient(1000px 600px at 10% 0%, #ffe0f0 0%, transparent 60%),
+        radial-gradient(800px 600px at 90% 10%, #e0f7ff 0%, transparent 60%),
+        radial-gradient(900px 700px at 50% 100%, #fbe7ff 0%, transparent 60%), var(--bg);
+    }
+    header{
+      position:sticky; top:0; z-index:10; backdrop-filter:saturate(1.2) blur(8px);
+      background:linear-gradient(180deg,#ffffffcc,#ffffff66);
+      border-bottom:1px solid #ffffff99;
+    }
+    .bar{max-width:1000px; margin:0 auto; padding:12px 16px; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .logo{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px}
+    .logo .heart{display:inline-grid; place-items:center; width:36px; height:36px; border-radius:12px; background:linear-gradient(135deg,var(--pink),var(--pink-2)); color:white; box-shadow:0 6px 20px #ff4da644}
+    .logo small{display:block; font-weight:600; color:var(--muted)}
+
+    .controls{margin-left:auto; display:flex; flex-wrap:wrap; gap:8px}
+    .controls input, .controls select{height:36px; padding:8px 10px; border-radius:10px; border:1px solid #e5e7eb; background:#fff}
+    .btn{height:36px; padding:0 12px; border-radius:12px; border:1px solid transparent; font-weight:700; cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-2)); color:white; box-shadow:0 6px 20px #ff4da633}
+    .btn-ghost{background:#fff; border-color:#e5e7eb}
+    .btn-danger{background:linear-gradient(135deg,#ef4444,#fb7185); color:white}
+
+    main{max-width:1000px; margin:14px auto; padding:0 16px 60px}
+    .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px}
+    .card{background:var(--card); border:1px solid var(--edge); border-radius:16px; padding:12px; box-shadow:0 8px 24px #00000010; position:relative}
+    .card.done{outline:2px dashed var(--green)}
+    .badge{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 10px; border-radius:999px; background:#fff; border:1px solid #f1f5f9; box-shadow:0 4px 12px #00000008}
+    .badge .dot{width:8px; height:8px; border-radius:50%}
+
+    .thumb{width:100%; aspect-ratio:16/10; border-radius:12px; object-fit:cover; background:linear-gradient(135deg,#f1f5f9,#ffe4f1); border:1px solid #eef2f7}
+    .title{font-weight:800; margin:8px 0 6px}
+    .meta{color:var(--muted); font-size:12px; display:flex; gap:10px; flex-wrap:wrap}
+    .actions{display:flex; gap:6px; margin-top:10px}
+    .actions .btn{height:34px; font-size:12px}
+
+    .empty{opacity:.8; border:2px dashed #ffd1e6; background:#fff8fb; display:grid; place-items:center; padding:22px; border-radius:16px}
+
+    /* modal */
+    dialog{border:0; border-radius:16px; padding:0; box-shadow:0 30px 80px #00000033; max-width:720px; width:92vw}
+    dialog::backdrop{backdrop-filter:blur(4px); background:#0006}
+    .sheet{padding:14px}
+    .sheet h3{margin:0 0 8px; font-size:20px}
+    .form{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .form label{font-size:12px; color:var(--muted)}
+    .form input,.form select,.form textarea{width:100%; padding:10px 12px; border-radius:12px; border:1px solid #e5e7eb; background:#fff}
+    .form textarea{min-height:90px; grid-column:span 2}
+    .form .row{display:flex; gap:10px}
+    .form .full{grid-column:span 2}
+    .chipbox{display:flex; gap:6px; flex-wrap:wrap}
+    .chip{padding:6px 10px; border-radius:999px; border:1px solid #e5e7eb; cursor:pointer; background:#fff}
+    .chip.active{background:linear-gradient(135deg,var(--blue),var(--violet)); color:white; border-color:transparent}
+
+    footer{
+      position:fixed; inset:auto 0 0 0; background:linear-gradient(180deg,#ffffffcc,#ffffffee);
+      border-top:1px solid #fff; backdrop-filter:blur(8px); padding:8px 12px
+    }
+    .foot{max-width:1000px; margin:0 auto; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .foot .tiny{font-size:12px; color:var(--muted)}
+
+    /* small screens */
+    @media (max-width:640px){
+      .controls{width:100%; margin-left:0}
+      .form{grid-template-columns:1fr}
+      .form textarea,.form .full{grid-column:span 1}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="logo">
+      <div class="heart">💖</div>
+      <div>
+        Future Planner<br>
+        <small>Papan Visi & Arah Hubungan</small>
+      </div>
+    </div>
+
+    <div class="controls">
+      <input id="q" type="search" placeholder="Cari impian…" oninput="render()" />
+      <select id="filter" onchange="render()">
+        <option value="">Semua kategori</option>
+      </select>
+      <select id="sort" onchange="render()">
+        <option value="new">Terbaru</option>
+        <option value="date">Target Terdekat</option>
+        <option value="cat">Kategori A–Z</option>
+      </select>
+      <button class="btn btn-ghost" onclick="exportJSON()">Export JSON</button>
+      <label class="btn btn-ghost" for="importer">Import</label>
+      <input id="importer" type="file" accept="application/json" hidden onchange="importJSON(this.files[0])" />
+      <button class="btn btn-primary" onclick="openForm()">+ Tambah Impian</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="tips" class="card" style="border-style:dashed">
+    <b>Arah Hubungan, Bukan Cuma Jalan.</b>
+    <p style="margin:6px 0 12px; color:var(--muted)">Gunakan papan visi ini untuk menyatukan tujuan: rumah idaman, usaha bareng, target nikah, perjalanan, dan hal-hal yang kalian ingin capai. Setiap kartu bisa diberi foto, ikon, kategori, dan tahun target.</p>
+    <div class="chipbox" id="quickAdd"></div>
+  </section>
+  <div id="board" class="grid" aria-live="polite"></div>
+</main>
+
+<footer>
+  <div class="foot">
+    <span class="tiny">Tersimpan otomatis di perangkat (localStorage).</span>
+    <span class="tiny">💡 Tips: cetak sebagai poster (Ctrl/Cmd+P) untuk ditempel di kamar.</span>
+    <div style="margin-left:auto; display:flex; gap:8px">
+      <button class="btn btn-danger" onclick="confirmReset()">Hapus Semua</button>
+    </div>
+  </div>
+</footer>
+
+<!-- Modal Form -->
+<dialog id="dlg">
+  <form id="dreamForm" method="dialog" class="sheet" onsubmit="saveDream(event)">
+    <h3 id="dlgTitle">Tambah Impian</h3>
+    <div class="form">
+      <div>
+        <label>Judul Impian</label>
+        <input id="title" placeholder="Contoh: Punya rumah di Bandung" required />
+      </div>
+      <div>
+        <label>Ikon/Emoji</label>
+        <input id="icon" placeholder="🏠 / 💍 / 🧑‍🍳" />
+      </div>
+      <div>
+        <label>Kategori</label>
+        <select id="category"></select>
+      </div>
+      <div>
+        <label>Tambahkan Kategori Baru (opsional)</label>
+        <input id="newCat" placeholder="Misal: Hubungan, Rumah Tangga" onblur="maybeAddCategory(this.value)" />
+      </div>
+      <div>
+        <label>Tahun/Target</label>
+        <input id="target" type="text" placeholder="2026 / Q4 2027 / 17-08-2026" />
+      </div>
+      <div>
+        <label>Foto (opsional)</label>
+        <input id="photo" type="file" accept="image/*" />
+      </div>
+      <div class="full">
+        <label>Detail / Langkah Kecil</label>
+        <textarea id="notes" placeholder="Kenapa penting? Langkah pertama apa? Estimasi biaya? Siapa berperan apa?"></textarea>
+      </div>
+      <div class="full">
+        <label>Checklist (pisahkan dengan baris baru)</label>
+        <textarea id="checklist" placeholder="Cari lokasi\nRiset KPR\nTabungan DP"></textarea>
+      </div>
+    </div>
+    <div class="actions" style="justify-content:flex-end; margin-top:12px">
+      <button class="btn btn-ghost" value="cancel" onclick="dlg.close()">Batal</button>
+      <button class="btn btn-primary" type="submit">Simpan</button>
+    </div>
+    <input type="hidden" id="editId" />
+  </form>
+</dialog>
+
+<script>
+  // ===== Storage & State =====
+  const KEY = 'future-planner.v1';
+  let dreams = load();
+  const defaultCats = [
+    {name:'Hubungan', color:'var(--pink)'},
+    {name:'Rumah', color:'var(--amber)'},
+    {name:'Karier/Usaha', color:'var(--violet)'},
+    {name:'Keuangan', color:'var(--blue)'},
+    {name:'Kesehatan', color:'var(--green)'},
+    {name:'Travel', color:'var(--rose)'},
+    {name:'Keluarga', color:'var(--pink-2)'},
+    {name:'Lainnya', color:'#94a3b8'}
+  ];
+
+  function load(){
+    try{ return JSON.parse(localStorage.getItem(KEY)) || [] }catch{ return [] }
+  }
+  function save(){ localStorage.setItem(KEY, JSON.stringify(dreams)); }
+
+  // ===== Utilities =====
+  function uid(){ return Math.random().toString(36).slice(2,9) }
+  function catColor(cat){
+    const found = defaultCats.find(c=>c.name===cat);
+    if(found) return found.color; return '#cbd5e1';
+  }
+  function formatDateLike(t){ return t||'' }
+
+  // ===== Init Controls =====
+  const filterSel = document.getElementById('filter');
+  const sortSel = document.getElementById('sort');
+  const qInput = document.getElementById('q');
+  const catSel = document.getElementById('category');
+  const quickAdd = document.getElementById('quickAdd');
+
+  function populateCategories(){
+    filterSel.innerHTML = '<option value="">Semua kategori</option>' + defaultCats.map(c=>`<option>${c.name}</option>`).join('');
+    catSel.innerHTML = defaultCats.map(c=>`<option>${c.name}</option>`).join('');
+  }
+
+  function maybeAddCategory(name){
+    name = (name||'').trim(); if(!name) return;
+    if(!defaultCats.some(c=>c.name.toLowerCase()===name.toLowerCase())){
+      defaultCats.splice(defaultCats.length-1,0,{name, color:'#60a5fa'});
+      populateCategories();
+      catSel.value = name;
+    }
+  }
+
+  function makeQuickAdd(){
+    const presets = [
+      {title:'Punya rumah di …', icon:'🏠', category:'Rumah', target:'2028', notes:'Lokasi …, tipe …, estimasi DP …'},
+      {title:'Punya usaha bersama …', icon:'🧑‍🍳', category:'Karier/Usaha', target:'2026', notes:'Ide usaha …, peran …'},
+      {title:'Target nikah di tahun …', icon:'💍', category:'Hubungan', target:'2027', notes:'Diskusikan visi; rencana tabungan; keluarga'},
+      {title:'Liburan impian ke …', icon:'✈️', category:'Travel', target:'2025', notes:'Rute, anggaran, waktu'},
+    ];
+    quickAdd.innerHTML = '';
+    presets.forEach(p=>{
+      const b = document.createElement('button');
+      b.type='button'; b.className='chip';
+      b.textContent = `${p.icon} ${p.title}`;
+      b.onclick = ()=> openForm(p);
+      quickAdd.appendChild(b);
+    })
+  }
+
+  // ===== Render Board =====
+  function render(){
+    const board = document.getElementById('board');
+    let list = [...dreams];
+
+    // search
+    const q = (qInput.value||'').toLowerCase();
+    if(q){ list = list.filter(d=> [d.title,d.notes,d.category,d.target].join(' ').toLowerCase().includes(q)) }
+
+    // filter cat
+    const f = filterSel.value; if(f){ list = list.filter(d=>d.category===f) }
+
+    // sort
+    const s = sortSel.value;
+    if(s==='new') list.sort((a,b)=> (b.created||0)-(a.created||0));
+    if(s==='date') list.sort((a,b)=> (''+(a.target||'')).localeCompare(''+(b.target||'')));
+    if(s==='cat') list.sort((a,b)=> (a.category||'').localeCompare(b.category||''));
+
+    board.innerHTML='';
+    if(list.length===0){
+      const div = document.createElement('div');
+      div.className='empty';
+      div.innerHTML = 'Belum ada impian. Klik <b>+ Tambah Impian</b> atau gunakan preset di atas ✨';
+      board.appendChild(div); return;
+    }
+
+    list.forEach(d=> board.appendChild(cardEl(d)));
+  }
+
+  function cardEl(d){
+    const el = document.createElement('article'); el.className='card'+(d.done?' done':''); el.dataset.id=d.id;
+    el.innerHTML = `
+      ${d.photo?`<img class="thumb" src="${d.photo}" alt="${d.title}">`:`<div class="thumb"></div>`}
+      <div class="badge" style="margin-top:8px">
+        <span class="dot" style="background:${catColor(d.category)}"></span>
+        <span>${d.icon||'🎯'}</span>
+        <b>${d.category||'Lainnya'}</b>
+      </div>
+      <div class="title">${escapeHTML(d.title)}</div>
+      <div class="meta">
+        ${d.target?`<span>🎯 Target: <b>${escapeHTML(d.target)}</b></span>`:''}
+        ${d.done?`<span>✅ Selesai</span>`:''}
+      </div>
+      ${d.notes?`<p style="margin:8px 0 0">${escapeHTML(d.notes)}</p>`:''}
+      ${renderChecklist(d)}
+      <div class="actions">
+        <button class="btn btn-ghost" onclick="editDream('${d.id}')">Edit</button>
+        <button class="btn btn-ghost" onclick="toggleDone('${d.id}')">${d.done?'Batalkan':'Tandai Selesai'}</button>
+        <button class="btn btn-ghost" onclick="shareCard('${d.id}')">Bagikan</button>
+        <button class="btn btn-ghost" onclick="duplicateDream('${d.id}')">Duplikat</button>
+        <button class="btn btn-danger" onclick="removeDream('${d.id}')">Hapus</button>
+      </div>
+    `;
+    return el;
+  }
+
+  function renderChecklist(d){
+    if(!d.checklist || !d.checklist.length) return '';
+    const doneCount = d.checklist.filter(i=>i.done).length;
+    const total = d.checklist.length;
+    const pct = Math.round(100*doneCount/total);
+    const items = d.checklist.map((i,idx)=>{
+      return `<label style="display:flex; gap:8px; align-items:flex-start; font-size:14px; margin-top:6px">
+        <input type="checkbox" ${i.done?'checked':''} onchange="toggleItem('${d.id}',${idx},this.checked)">
+        <span>${escapeHTML(i.text)}</span>
+      </label>`
+    }).join('');
+    return `<div style="margin-top:10px">
+      <div class="meta">Progress: <b>${pct}%</b></div>
+      ${items}
+    </div>`
+  }
+
+  // ===== CRUD =====
+  function openForm(preset){
+    document.getElementById('dreamForm').reset();
+    document.getElementById('editId').value = '';
+    document.getElementById('dlgTitle').textContent = 'Tambah Impian';
+    if(preset){
+      title.value = preset.title||'';
+      icon.value = preset.icon||'';
+      category.value = preset.category||category.options[0].value;
+      target.value = preset.target||'';
+      notes.value = preset.notes||'';
+    }
+    dlg.showModal();
+  }
+
+  function saveDream(e){
+    e.preventDefault();
+    const id = document.getElementById('editId').value || uid();
+    const file = document.getElementById('photo').files[0];
+
+    const payload = () => ({
+      id,
+      title: title.value.trim(),
+      icon: icon.value.trim(),
+      category: category.value,
+      target: target.value.trim(),
+      notes: notes.value.trim(),
+      checklist: (checklist.value || '').split(/\n+/).filter(Boolean).map(t=>({text:t, done:false})),
+      created: Date.now(),
+      done:false
+    });
+
+    if(file){
+      const reader = new FileReader();
+      reader.onload = () => { upsert({...payload(), photo: reader.result}); };
+      reader.readAsDataURL(file);
+    }else{
+      upsert({...payload(), photo: (dreams.find(x=>x.id===id)||{}).photo || ''});
+    }
+  }
+
+  function upsert(obj){
+    const i = dreams.findIndex(x=>x.id===obj.id);
+    if(i>=0){ dreams[i] = {...dreams[i], ...obj, created: dreams[i].created}; }
+    else { dreams.unshift(obj); }
+    save(); render(); dlg.close();
+  }
+
+  function editDream(id){
+    const d = dreams.find(x=>x.id===id); if(!d) return;
+    openForm();
+    document.getElementById('dlgTitle').textContent = 'Edit Impian';
+    editId.value = d.id; title.value = d.title; icon.value = d.icon; category.value = d.category; target.value = d.target; notes.value = d.notes;
+    checklist.value = (d.checklist||[]).map(i=>i.text).join('\n');
+  }
+
+  function duplicateDream(id){
+    const d = dreams.find(x=>x.id===id); if(!d) return;
+    const copy = {...d, id:uid(), created:Date.now(), title: d.title + ' (copy)'};
+    dreams.unshift(copy); save(); render();
+  }
+
+  function removeDream(id){
+    if(!confirm('Hapus impian ini?')) return;
+    dreams = dreams.filter(x=>x.id!==id); save(); render();
+  }
+
+  function toggleDone(id){
+    const d = dreams.find(x=>x.id===id); if(!d) return; d.done = !d.done; save(); render();
+    if(d.done) celebrate();
+  }
+
+  function toggleItem(id, idx, checked){
+    const d = dreams.find(x=>x.id===id); if(!d) return;
+    d.checklist[idx].done = checked; save(); render();
+  }
+
+  // ===== Export / Import =====
+  function exportJSON(){
+    const data = JSON.stringify({version:1, exportedAt:new Date().toISOString(), items:dreams});
+    const blob = new Blob([data], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'future-planner.json'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  function importJSON(file){
+    if(!file) return; const r = new FileReader();
+    r.onload = () => {
+      try{
+        const parsed = JSON.parse(r.result);
+        if(parsed.items && Array.isArray(parsed.items)){
+          // merge by id; prefer imported
+          const map = new Map(dreams.map(x=>[x.id,x]));
+          parsed.items.forEach(x=> map.set(x.id,x));
+          dreams = Array.from(map.values()); save(); render();
+          alert('Import berhasil!');
+        }else{ alert('File tidak sesuai.'); }
+      }catch(e){ alert('Gagal membaca file JSON.'); }
+    };
+    r.readAsText(file);
+  }
+
+  function confirmReset(){
+    if(confirm('Hapus semua impian di perangkat ini?')){ dreams=[]; save(); render(); }
+  }
+
+  // ===== Share as Image (simple) =====
+  async function shareCard(id){
+    const card = document.querySelector(`[data-id="${id}"]`);
+    try{
+      const blob = await htmlToImage(card);
+      if(navigator.canShare && navigator.canShare({files:[new File([blob],'impian.png',{type:'image/png'})]})){
+        await navigator.share({
+          title:'Future Planner',
+          files:[new File([blob],'impian.png',{type:'image/png'})]
+        });
+      }else{
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download='impian.png'; a.click(); URL.revokeObjectURL(a.href);
+        alert('Gambar telah diunduh.');
+      }
+    }catch(e){ alert('Maaf, fitur berbagi gambar tidak tersedia di perangkat ini.'); }
+  }
+
+  // Minimal element-to-image (no external libs)
+  async function htmlToImage(node){
+    // use SVG foreignObject technique
+    const scale = 2; const rect = node.getBoundingClientRect();
+    const clone = node.cloneNode(true);
+    const wrapper = document.createElement('div');
+    wrapper.style.padding='12px'; wrapper.style.background='#ffffff'; wrapper.appendChild(clone);
+    const html = new XMLSerializer().serializeToString(wrapper);
+    const data = `<svg xmlns='http://www.w3.org/2000/svg' width='${rect.width*scale}' height='${(rect.height+24)*scale}'>
+      <foreignObject x='0' y='0' width='100%' height='100%' transform='scale(${scale})'>${html}</foreignObject>
+    </svg>`;
+    const blob = new Blob([data], {type:'image/svg+xml;charset=utf-8'});
+    // convert to PNG via canvas
+    const url = URL.createObjectURL(blob);
+    const img = new Image(); img.crossOrigin='anonymous';
+    await new Promise(res=>{ img.onload=res; img.src=url; });
+    const canvas = document.createElement('canvas'); canvas.width=rect.width*scale; canvas.height=(rect.height+24)*scale;
+    const ctx = canvas.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0);
+    URL.revokeObjectURL(url);
+    return await new Promise(res=> canvas.toBlob(res));
+  }
+
+  // ===== Small helpers =====
+  function escapeHTML(s){ return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])) }
+  function celebrate(){
+    // simple confetti
+    for(let i=0;i<30;i++) setTimeout(()=>spawnConfetti(), i*30);
+  }
+  function spawnConfetti(){
+    const p = document.createElement('div');
+    const size = 8 + Math.random()*10;
+    p.style.cssText = `position:fixed; left:${Math.random()*100}vw; top:-20px; width:${size}px; height:${size}px; background:hsl(${Math.random()*360} 90% 60%); border-radius:2px; transform:rotate(${Math.random()*360}deg); z-index:9999; pointer-events:none;`;
+    document.body.appendChild(p);
+    const end = window.innerHeight + 40;
+    const start = performance.now();
+    function step(t){
+      const k = Math.min(1,(t-start)/1400);
+      p.style.top = (-20 + k*end) + 'px';
+      p.style.transform = `translateX(${Math.sin(k*10+Math.random())*40}px) rotate(${k*720}deg)`;
+      if(k<1) requestAnimationFrame(step); else p.remove();
+    }
+    requestAnimationFrame(step);
+  }
+
+  // ===== Start =====
+  populateCategories(); makeQuickAdd(); render();
+
+  // preload demo if empty
+  if(dreams.length===0){
+    dreams = [
+      {id:uid(), title:'Punya rumah di Bandung', icon:'🏠', category:'Rumah', target:'2028', notes:'Dekat tempat kerja; lingkungan tenang', checklist:[{text:'Riset KPR',done:false},{text:'Tabungan DP 20%',done:false}], created:Date.now()},
+      {id:uid(), title:'Punya usaha bersama coffee cart', icon:'☕', category:'Karier/Usaha', target:'2026', notes:'Menu simple, lokasi padat kampus', checklist:[{text:'Riset modal',done:true},{text:'Coba resep',done:false}], created:Date.now()},
+      {id:uid(), title:'Target nikah di tahun 2027', icon:'💍', category:'Hubungan', target:'2027', notes:'Diskusi keluarga, persiapan mental & finansial', checklist:[{text:'Rencana tabungan',done:false}], created:Date.now()},
+    ]; save(); render();
+  }
+</script>
+</body>
+</html>
